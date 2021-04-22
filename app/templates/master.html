@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Properties Price</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>-->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename = 'bootstrap-select.js')}}"></script>
+    <link rel="stylesheet" href="{{ url_for('static',filename = 'bootstrap-select.css')}}" type="text/css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<style>
+p    {text-align: justify ;}
+</style>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Properties Price Project</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="https://www.udacity.com/">Made with Udacity</a></li>
+                <li><a href="https://github.com/HectorMontes10/Disaster_response">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="jumbotron">
+    <div class="container">
+        <h1 class="text-center">Properties Price Project</h1>
+        <h2 class="text-center"><b>Building interactive maps and modeling property prices in Colombia</b></h2>
+
+        <p>This project analyzes property prices in Colombia (houses, apartments, lots, etc). The data has been obtained from this site in <a href="https://www.kaggle.com/julianusugaortiz/colombia-housing-properties-price">kaggle</a></p>
+    </div>
+</div>
+
+<div class="container">
+<div class="container">
+    {% block content %}
+        <div class="page-header">
+            <h2 class="text-center">Overview of Training Dataset</h1>
+        </div>
+    {% endblock %}
+</div>
+
+<p>In order to analyze the amount of missing values in the original data set you can choose a segmentation variable and a list of variables of interest with the controls below.</p>
+
+<hr />
+<p>Select the types of properties you want to inspect:</p>
+<hr />
+
+<form method="post" id="multiple_select_form_1">
+    <div class="container" style= "text-align:center">
+      <select name= "categories" id= "categories" class="selectpicker" multiple data-style="btn-primary" style="margin:10px auto;">          
+      {% for option in options %}
+        <option>{{option}}</option>      
+      {% endfor %}
+      </select>
+    </div>    
+    <hr />
+    <p>Select the features to analyze:</p>
+    <hr />
+    <div class="container" style= "text-align:center">
+      <select name= "features" id= "features" class="selectpicker" multiple data-style="btn-primary" style="margin:10px auto;">          
+      {% for feature in list_features %}
+        <option>{{feature}}</option>
+      {% endfor %}
+      </select>
+    </div>
+    <hr />
+    <div class="container" style= "text-align:center">
+        <input type="submit" name="submit_2" class="btn btn-info" value="Submit"/>            
+    </div>
+</form>
+</div>
+    
+<div class="container">
+    {% for id in ids %}
+        <div id="{{id}}"></div>
+    {% endfor %}
+</div>
+
+    
+<script type="text/javascript">
+    const graphs = {{graphJSON | safe}};
+    const ids = {{ids | safe}};
+    for(let i in graphs) {
+        Plotly.plot(ids[i], graphs[i].data, graphs[i].layout);
+    }
+</script>
+
+<div class="container">
+    
+<p>From the previous analysis we can draw the following conclusions:</p>
+
+<ul>
+    <li>At least 4 of the 7 variables analyzed present very high percentages of missing values. This result invites us to keep only those records with complete information, especially if these variables are important for a price prediction. For example, variables such as: rooms, bedrooms, surface_total, and surface_covered are important predicting the price of houses and apartments, the two most common property types in the dataset.</li>
+    <li>The penthouse property (PH) data sample is actually very small (only 24 records), and it has high percentages of missing value, so it will be removed.</li>
+    <li>Property types such as "Lot" and "Other" have a large number of empty records. An imputation is not feasible because this implies replace most of the data. Complete rows should be preserved and if they are sufficient then proceed to the analysis.</li>
+    <li>Since not all variables apply to each type of property, it is appropriate to uncouple the dataset and perform cleaning for each type of property.</li>
+</ul>
+<p>Taking into account the above, these was the cleaning task executed:</p>
+<ol>
+    <li>Only the sale prices of Houses and Apartments will be analyzed.</li>
+    <li>For the georeferencing variables "lat" and "lon", no values will be imputed. The records will be deleted.</li>
+    <li>The median will be imputed for the numerical variables, this is a more robust centrality measure in presence of outliers. The median will be calculated for each type of property.</li>
+    <li>Due to the high number of imputations, binary variables will be created. They report the presence of an imputed data.</li>
+    <li>We eliminate variables that are constant or not informative.</li>
+    <li>We eliminate records with negative values in variables other than lat and lon.</li>    
+</ol>
+</div>
+
+<div class="container">
+    
+    <h1><b>METODOLOGY FOR CARRYING OUT THE ANALYSIS</b></h1>
+    <p>To ensure quality work on these data, we will use the CRIPS-DM methodology for answering questions of interest about the data we are studying. The methodology consists of the following steps:</p>
+    <ul>
+        <li>Business Understanding</li>
+        <li>Data Understanding</li>
+        <li>Data preparation</li>
+        <li>Data modeling</li>
+        <li>Evaluation</li>
+        <li>Deployment</li>
+    </ul>
+    <p>The deployment stage usually involves create an analytical solution in a production environment for support business decisions. This is this site!!. We try systematically approach the phases as far as possible.</p>
+
+    <h2>1. Business understanding</h2>
+    <p>What is the main question that we must resolve regarding the real estate data in Colombia?</p>
+    <p>There is no single answer, however, to understand the situation, the following questions may be relevant:</p>
+        <ul>
+            <li>Question 1. Does the price of real estate present significant differences between regions of the country?</li>
+            <li>Question 2. Is there a natural way to group properties according to their features?</li>
+            <li>Question 3. Which variables better predict the price of a property and how much precision is achieved?</li>
+        </ul>
+    <h2>2. Data understanding</h2>
+    <p>Once the questions of interest are raised, we will take a closer look at our data to answer each question. First we will review the variables that inform us about the region where the properties are located. These child variables:</p>
+    <ul>
+        <li>lat, lon : Latitudes and longitudes (geographic location)</li>
+        <li>l1 : Country</li>
+        <li>l2 : Department</li>
+        <li>l3 : City</li>
+        <li>l4 : Zone</li>
+        <li>l5 : Locality</li>
+        <li>l6 : Neighborhood</li>
+    </ul>
+    <p>The variable l1 is obviously constant in this case, so it does not contribute anything in the explanation of the data and was removed in the previous step. On the other hand, we will add the region variable to group the departments by geographic regions. For this we will use the regions.csv file that maps each department to its respective region.</p>
+    <p>To take advantage of the fact that our database is georeferenced, we will use the "Folium" package.</p>
+    <p>Folium allows us to build spatial representations of our data, invoking underneath the Leafleat JavaScript library, which runs perfectly in jupyter notebooks and website like this. The regions file also contains an extra column with the name of the department as it appears in the shapefile dept.shp. This shape file is included in the repository where this project is located because it contains the department layer that allows you to draw the median of property prices on an interactive map. The resource can be downloaded from <a href="https://sites.google.com/site/seriescol/shapes">here.</a>
+    </p>
+    <p>To read this file we will use "geopandas". This library facilitates the creation of geodataframe objects with information from a shapefile. <a href="https://geopandas.org/">Here the documentation.</a></p>
+    <h2>3. Data preparation</h2>
+    <p>Data preparation involved the following steps:</p>
+    <ol>
+        <li>Download a shapefile file from a public repository to be able to present the data grouped by department.</li>
+        <li>Download the database from the before mentioned kaggle site.</li>
+        <li>Carry out the data cleaning already mentioned. For this, a pipeline was designed that automates cleaning by removing invalid data, creating binary variables for the cases, excluding lost non-useful information. You can further review the data_proccess.py function present in the project repository "/ data" directory.</li>
+        <li>The data was integrated into a single clean dataframe that was the input for the modeling stage.</li>
+    </ol>
+</div>
+
+<div class="container">
+    <h3 class="text-center"><b>Data understanding: An example with Choropleths maps for property prices</b></h3>
+    <hr/>
+    
+        <p>We have implemented interactive map visualizations using Folium and Geopandas. The data that you will see below are the medians of the property prices for each department in Colombia.</p>
+        <p>Choose options using the following types list. The median of price will be calculate for each department over all types selected. Then a Choropleth map will be displayed.</p>
+        <hr />
+    
+        <form method="post" id="multiple_select_form_2">
+            <div class="container" style= "text-align:center">
+              <select name= "property_type" id= "property_type" class="selectpicker" multiple data-style="btn-primary" style="margin:10px auto;">
+              <option>Default map(only 1000 data points)</option>
+              {% for type in types %}
+                <option>{{type}}</option>
+              {% endfor %}
+              </select>
+            </div>
+            <hr />
+            <input type="hidden" name="hidden_types" id="hidden_types"/> 
+            <div class="container" style= "text-align:center">
+                <input type="submit" name="submit_2" class="btn btn-info" value="Submit"/>            
+            </div>
+        </form>
+</div>
+<hr />
+<div class="container"  style= "text-align:center; margin:10px auto;">
+        <iframe id= "map" name="map" class="map" src="{{source_map}}" width="100%" height="800px" style="border:0.2em solid chocolate"></iframe>
+</div>
+    
+<div class="container">
+    <h3 class="text-center"><b>Data preparation: An example with geopandas with geometry columns</b></h3>
+    <hr/>
+    
+        <p>We have implemented an geodataframe using geopandas. In it, we integrate the price data with the department polygons and then pass this information to Folium and draw maps. The table looks like this:</p>
+        <div class="container"  style= "text-align:center; margin:10px auto;">
+        <img caption="An geodataframe example in gif" src="{{ url_for('static',filename = 'geodf.gif')}}" width="50%" height="50%">
+        </div>
+    <p>You can also inspect it in html format <a href= "{{ url_for('static',filename = 'geodf.html')}}">here</a></p>
+</div>
+
+<div class="container">
+    <h2>4. Data Modelling:</h2>
+    <p>To answer the principal question: <i><b>Which of the variables we have available allow us to better predict the price of a property and how much precision is achieved?</b></i>, we tried with several regression model(linear model, SVM for regression, and Stochastic Gradient Descent for regression). We build a single model with the data of Houses and Apartments. In preparing data for the model, the following steps were considered:</p>
+    <ol>
+        
+        <li>Keep only the following categorical variables: property_type, l2shp (Department)</li>
+        <li>Construct a matrix X with all the variables that we consider that can predict the logarithm of the sale price.</li>
+        <li>Preserve binary variables that report the presence of missing values. The missing numerical values will be imputed with the median</li>
+        <li>Remove incomplete records, that is, those that have more than 2 of the following missing fields: rooms, log_surface_total, log_surface_covered, bathrooms.</li>
+        <li>Impute upper extreme values with the 98% percentile.</li>
+        <li>Create the respective response vector.</li>
+        <li>Include dummy variables for categorical variables: Region, property_type, and l2 (Department) using One-Hot Encoding because they are nominal variables.</li>
+        <li>Split the data in test and training sets
+        <li>Search the best parameter and best model using gridseach strategy with <i>sklearn.model_selection.GridSearchCV</i>. This is <b>very powerful</b> because it allows you to have the best fitted model on a search space for both parameters and estimators (model classes). That is, it implements a search for the best parameters of a family of models and returns the best of all from the perspective of cross-validation on train data. The scoring function choosen was the MSE (Mean Square Error), calulated over each subset defined by the croos-validation search</li>
+        <li>Conclude on the precision of the best model by map visualizations of MSE over test dataset.</li>
+    </ol>
+    <p>This web-site use the best model for visualizations, but you can see the pipeline proccess by inspect the train_regresor.py file in the repository where this project is located. The best model is consumed from a pickle file present in the repository and the results of its evaluation are sent to the website using flask.</p>
+    
+    <h4><b>Final note:</b></h4>
+    
+    <p>The main purpose of this demo is to present the integration of three tools: Folium, Geopandas and Sklearn for modeling georeferenced data. This combination is very powerful, and much more can be done in the data exploration stage. You can consult more ideas in this regard, and feel free to integrate them into this website by taking a look at the jupyter notebook present in this <a href="https://github.com/HectorMontes10/Properties_price">repository</a>, where I expand a little more in the exploratory stage.</p>
+    
+</div>
+<div class="container">
+    <h3 class="text-center"><b>Evaluating the performance for a price prediction model</b></h3>
+    <hr/>
+    
+        <p>Using the data available in our training set we have fitted a real estate price prediction model using the steps described above. Before adjusting the model, we reserve a set of points to carry out this performance test.</p>
+
+        <p>Choose options using the following types list. The median of squared residuals of price will be calculate for each department over all types selected. Then a Choropleth map will be displayed.</p>
+        <hr />
+    
+        <form method="post" id="multiple_select_form_3">
+            <div class="container" style= "text-align:center">
+              <select name= "property_type2" id= "property_type2" class="selectpicker" multiple data-style="btn-primary" style="margin:10px auto;">
+              <option>Default map(only 1000 data points)</option>
+              {% for type_e in types_errors %}
+                <option>{{type_e}}</option>
+              {% endfor %}
+              </select>
+            </div>
+            <hr />
+            <input type="hidden" name="hidden_types_e" id="hidden_types_e"/> 
+            <div class="container" style= "text-align:center">
+                <input type="submit" name="submit_3" class="btn btn-info" value="Submit"/>     
+            </div>
+        </form>
+</div>
+<hr />
+<div class="container"  style= "text-align:center; margin:10px auto;">
+        <iframe id= "map2" name="map2" class="map" src="{{source_map}}" width="100%" height="800px" style="border:0.2em solid chocolate"></iframe>
+</div>
+    
+<script>
+    $(document).ready(function(){
+        
+        function update_map(iframeName, url)
+            {
+                var $iframe = $('#' + iframeName);
+                if ($iframe.length) {
+                    $iframe.attr('src',url);
+                    return false;
+                    }
+            }
+        
+        const options = {{options | safe}};
+        const list_features = {{list_features | safe}};          
+        const types = {{types| safe}};
+        const types_errors = {{types_errors| safe}};           
+    
+        $('.selectpicker').selectpicker();
+    
+        $('#multiple_select_form_1').on('submit',function(event){
+            
+            function updategraph(data){
+                const graphs_ = JSON.parse(data);
+                obj = document.getElementById('graph-0');
+                Plotly.react(obj, graphs_[0].data, graphs_[0].layout);
+                }
+            event.preventDefault();
+            if (($('#categories').val()!=null) && ($('#features').val()!=null))
+            {
+                
+                //var form_data = $(this).serialize();
+                let form_categories = $('#categories').val();
+                let form_features = $('#features').val();
+                form_data = {'categories':form_categories, 'features':form_features};
+
+                $.ajax({
+                    url: "/ajax_add",
+                    method: "POST",
+                    data: form_data,
+                    success: function(data)
+                    {
+                        updategraph(data);
+                    }
+                })
+            }
+            else{
+                alert("Please select categories and segmentation variable");
+                return false;
+            }
+            $(document).ready(function(){});
+        });
+    
+        $('#multiple_select_form_2').on('submit',function(event){
+            
+            event.preventDefault();
+            console.log("True")
+            console.log($('#property_type').val())
+            if ($('#property_type').val()=='Default map(only 1000 data points)' || $('#property_type').val()==null)
+            {   
+                alert("If you want to change the map, please select one different option (No Default map) in the property type list");
+            }
+            else{
+                let form_property = $('#property_type').val();
+                form_data = {'property_type':form_property};
+
+                $.ajax({
+                    url: "/ajax_add_2",
+                    method: "POST",
+                    data: form_data,
+                    success: function(data)
+                    {
+                        console.log(data);
+                        update_map("map","\Choropleth_map");
+
+                    }
+                })
+            $(document).ready(function(){});
+            }
+        });
+    
+    $('#multiple_select_form_3').on('submit',function(event){
+            
+            event.preventDefault();
+            console.log("True")
+            console.log($('#property_type2').val())
+            if ($('#property_type2').val()=='Default map(only 1000 data points)' || $('#property_type2').val()==null)
+            {   
+                alert("If you want to change the map, please select one different option (No Default map) in the property type list");
+            }
+            else{
+                let form_property = $('#property_type2').val();
+                form_data = {'property_type':form_property};
+
+                $.ajax({
+                    url: "/ajax_add_3",
+                    method: "POST",
+                    data: form_data,
+                    success: function(data)
+                    {
+                        console.log(data);
+                        update_map("map2","\Choropleth_map_errors");
+
+                    }
+                })
+            $(document).ready(function(){});
+            }
+        });
+    })
+</script>
+</body>
+</html>
