@@ -1,4 +1,4 @@
-def construct_geodf(df, properties_types, path_shape):
+def construct_geodf(df, properties_types,col_to_plot, path_shape):
     
     '''
     
@@ -39,17 +39,18 @@ def construct_geodf(df, properties_types, path_shape):
     
     #Step 4: Compute medians for each department
 
-    medians = df[['price','l2shp']].groupby(['l2shp']).median()
+    medians = df[[col_to_plot,'l2shp']].groupby(['l2shp']).median()
     medians.reset_index(inplace=True)
-    medians = medians[['l2shp','price']]
-    medians.columns = ['NOMBRE_DPT','price']
+    medians = medians[['l2shp',col_to_plot]]
+    medians.columns = ['NOMBRE_DPT',col_to_plot]
 
     # Step 5: Calculating data from cundinamarca to use in the Bogotá polygon
     #         (Bogotá is inconveniently separated in the shapefile)
 
     cund_p = medians[medians.NOMBRE_DPT=="CUNDINAMARCA"]
-    cund_p = cund_p.iloc[0].price
-    medians = medians.append({'NOMBRE_DPT':'SANTAFE DE BOGOTA D.C','price':cund_p}, ignore_index=True)
+    if(cund_p.shape[0]>0):
+        cund_p = cund_p.iloc[0][col_to_plot]
+        medians = medians.append({'NOMBRE_DPT':'SANTAFE DE BOGOTA D.C',col_to_plot:cund_p}, ignore_index=True)
     
     # Step 6: Merge data of price to geodataframe:
 
@@ -57,6 +58,6 @@ def construct_geodf(df, properties_types, path_shape):
     
     #Step 7: Retain only informative columns for this map:
     
-    deptos = deptos[['NOMBRE_DPT','price','geometry']]
+    deptos = deptos[['NOMBRE_DPT',col_to_plot,'geometry']]
     
     return deptos

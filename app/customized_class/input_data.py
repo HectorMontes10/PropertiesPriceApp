@@ -103,4 +103,5 @@ class InputData(BaseEstimator, TransformerMixin):
 
         X_mod = self.__compute_log10(X_mod)
         X_mod = X_mod.drop(['l2shp'],axis=1)
+        X_mod = X_mod.drop(['property_type'],axis=1)
         return X_mod

@@ -91,8 +91,6 @@ def ajax_add():
         
         df_=df[df['property_type'].isin(categories)]
         df_report = create_missing_report(df_,features,segment_by)
-        print(df_report)
-        print(list(df_report.index))
         
         columns_for_map = ['perc_'+x for x in features]
         fig = go_.Figure(data=go_.Heatmap(z = df_report[columns_for_map],
@@ -116,8 +114,7 @@ def ajax_add_2():
     # load data for choropleths
         response = request.form
         properties_types = response.getlist('property_type[]')
-        print(properties_types)
-        geodf = construct_geodf(df,properties_types,"./source/depto.shp")
+        geodf = construct_geodf(df,properties_types,'price',"./source/depto.shp")
         map_, geodf_geo_json = create_choropleth(geodf,'price','NOMBRE_DPT',1000000)
         map_.save("templates/Choropleth_map.html")
     return render_template('Choropleth_map.html')
@@ -129,10 +126,9 @@ def ajax_add_3():
     # load data for choropleths
         response = request.form
         properties_types = response.getlist('property_type[]')
-        print(properties_types)
         df_errors = pd.read_csv("./source/test_errors.csv")
-        geodf = construct_geodf(df_errors,properties_types,"./source/depto.shp")
-        map_, geodf_geo_json = create_choropleth(geodf,'price','NOMBRE_DPT',1000000)
+        geodf = construct_geodf(df_errors,properties_types,"squared_errors","./source/depto.shp")
+        map_, geodf_geo_json = create_choropleth(geodf,"squared_errors",'NOMBRE_DPT',0.001)
         map_.save("templates/Choropleth_map_errors.html")
     return render_template('Choropleth_map_errors.html') 
 
@@ -142,7 +138,7 @@ def map():
 @app.route('/Choropleth_map')
 def Choropleth_map():
     return render_template("Choropleth_map.html")
-@app.route('/Choropleth_errors')
+@app.route('/Choropleth_map_errors')
 def Choropleth_map_errors():
     return render_template("Choropleth_map_errors.html")
 @app.route('/')

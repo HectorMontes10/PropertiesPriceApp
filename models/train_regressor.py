@@ -101,7 +101,7 @@ def adjust_data_for_model(df):
     for col in var_cat:
         try:
             
-            if col!='l2shp':
+            if ((col!='l2shp') & (col!='property_type')):
                 df = pd.concat([df.drop(col,axis=1),pd.get_dummies(df[col], prefix = col, prefix_sep = "_", drop_first = True, 
                                                                    dummy_na = False, dtype=int)],axis=1)
             else:
@@ -225,9 +225,8 @@ def save_data_to_evaluate_model(df,X_test,y_test,model):
     df_results = pd.concat([X_test,df_pred,y_test],axis=1)
     df_results['errors'] = df_results['y_pred']-df_results['price']
     df_results['l2shp'] = df['l2shp']
+    df_results['property_type'] = df['property_type']
     df_results['squared_errors'] = df_results['errors']**2
-    #df_results['missing_lon'] = df['missing_lon']
-    #df_results['missing_lat'] = df['missing_lat']
     df_to_save = df_results[['lat','lon','l2shp','errors','squared_errors','missing_lon','missing_lat']]
     df_to_save.to_csv("./app/source/test_errors.csv")
     print("   The R2 for the best model was {}".format(r2_model))

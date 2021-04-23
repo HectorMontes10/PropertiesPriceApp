@@ -35,10 +35,12 @@ def create_choropleth(geodf, col_to_plot, col_id, factor_scale):
     
     geodf = geodf.set_index(col_id)
     geodf_geo_json = geodf.to_json()
-
+   
     bins = list(round(geodf_dict[col_to_plot].quantile([0, 0.15, 0.45, 0.60, 0.80, 0.90, 1]),1))
     map_ = folium.Map(location=[5.170035, -74.914305], tiles='cartodbpositron', zoom_start=6)
-
+    legend_name = "re-scaled Median of price(Millions COP)"
+    if(col_to_plot!="price"):
+        legend_name = "re-scaled Median of "+col_to_plot
     folium.Choropleth(
         geo_data=geodf_geo_json,
         name="choropleth",
@@ -48,7 +50,7 @@ def create_choropleth(geodf, col_to_plot, col_id, factor_scale):
         fill_color="BuPu",
         fill_opacity=0.7,
         line_opacity=0.2,
-        legend_name="re-scaled Median of price(Millions COP)",
+        legend_name=legend_name,
         bins = bins,
         reset = True
     ).add_to(map_)
