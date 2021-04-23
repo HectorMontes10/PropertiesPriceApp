@@ -228,11 +228,11 @@ Based on the above findings, a data preprocessing was designed with the followin
 - save_model: Save the best model like a pkl file.
 - input_data.py (customized_transformer): This transformer is important for the removal of outliers and the imputation of medians on missing data. For a more intelligent imputation, the median of the feature is calculated for each department, and then the appropriate value is used over each sample.
 
-<img src="Graphs/import_customized_class.PNG>
-<img src="Graphs/adjust_data.PNG>
-<img src="Graphs/build_model.PNG>
-<img src="Graphs/search_space.PNG>
-<img src="Graphs/save_eval.PNG>
+<img src="Graphs/import_customized_class.PNG">
+<img src="Graphs/adjust_data.PNG">
+<img src="Graphs/build_model.PNG">
+<img src="Graphs/search_space.PNG">
+<img src="Graphs/save_eval.PNG">
 
 **For visualizations in app**:
 
@@ -240,7 +240,7 @@ Based on the above findings, a data preprocessing was designed with the followin
 - create_choropleth.py: This function allows creating html templates for a desired choropleth for a certain variable to be drawn and a certain group of real estate properties chosen by the user. It exemplifies the power of folium when used in conjunction with geopandas
 - create_geodf.py: This function create the data layer for the folium map.
 
-<img src="Graphs/Choropleth.gif>
+<img src="Graphs/Choropleth.gif">
 
 ### Summary:
 
