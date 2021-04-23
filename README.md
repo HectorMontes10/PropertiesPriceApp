@@ -50,25 +50,25 @@ The main conclusion was that missing data needed to be imputed in large quantiti
 
 From this process it was also concluded that there was only quality data to model prices of houses and apartments, so the analysis focused on those two types of property.
 
-[per_miss_val.png]
+<img src="Graphs/per_miss_val.png">
 
 **Counting the number of records by department and property**: It was studied whether there was enough information for all the properties. This revealed low data frequencies for many of them, further reinforcing the decision to focus on houses and apartments.
 
-[count_records_by_pro.png]
+<img src="Graphs/count_records_by_pro.png">
 
 **Counting the number of houses and apartment by Regions**: The data set was supplemented with an extra variable: the region of the country where the property is located. It is known that there are demographic and socioeconomic differences between regions that can impact price, so it was included as part of the analyzes. The idea here was to get the amount of houses and apartments by regions. Orinoquía, Amazonia and Insular are very data-poor regions that were removed.
 
-[house_apart_vs_region.png]
+<img src="Graphs/house_apart_vs_region.png">
 
 **Log of price vs other variables**: The relationship of the logarithm of the price with other variables such as: the region, the type of property, the department, was studied in some detail. In some cases, crossing variables taking control of another. The main conclusions were that prices differ between regions, as expected, and by department the behavior can be very dissimilar and with the presence of many atypical data. Boxplots, and violin plot were used for these analyzes.
 
-[log_price_by_regions.png]
+<img src="Graphs/log_price_by_regions.png">
 
-[logs_price_by_pro.png]
+<img src="Graphs/logs_price_by_pro.png">
 
-[log_house_by_regions.png]
+<img src="Graphs/log_house_by_regions.png">
 
-[log_house_by_depart.png]
+<img src="Graphs/log_house_by_depart.png">
 
 ### Data Visualization
 
@@ -76,7 +76,7 @@ There a natural way to group properties according to their characteristics?. Thi
 
 **Pairplot for features**:  For which a pairplot was drawn to review the relationships between pairs of variables. 
 
-[pair_plot.png]
+<img src="Graphs/pair_plot.png">
 
 Some conclusions are:
 
@@ -87,17 +87,17 @@ Some conclusions are:
 
 **Finding outliers in critical variables**: It is known that outliers greatly impair the predictive ability of a model. That's why we inspect this for critical variables like number of rooms, total surface and covered surface:
 
-[outlier_cove_surf.png]
+<img src="Graphs/outlier_cove_surf.png">
 
-[outlier_rooms.png]
+<img src="Graphs/outlier_rooms.png">
 
-[outlier_tot_surf.png]
+<img src="Graphs/outlier_tot_surf.png">
 
 All of this information was used in the data preparation stage to build a custom transformer that would remove outliers and conveniently impute data using robust central measures such as the median.
 
 **Inspecting the effect of remove imputed data**: What happens to the pairplot when the mass of input data is not present?. This is what was found:
 
-[cleaned_pair_plot.png]
+<img src="Graphs/cleaned_pair_plot.png">
 
 - The scatter plot between log_price and rooms shows that the regression slope could be steeper for properties with less than 5 rooms than for properties with more than 5 rooms.
 - Log_surface_total is positively correlated with log_price, and the same happens with log_surface_covered where the relationship is very clear.
@@ -105,9 +105,91 @@ All of this information was used in the data preparation stage to build a custom
 
 **Experimenting with PCA for clustering of cases**: It may be appropriate to apply PCA before proceeding to a regression analysis. This allows to visualize natural groupings of the data using clustering.
 
-[varianza_pca]
+<img src="Graphs/varianza_pca.png">
 
-[pairplot_pca.png]
+<img src="Graphs/pairplot_pca.png">
+
+**Other analysis: Comparison of means**: To detect specific differences between prices by regions we run a multiple comparison test, which is available in the scikit_posthocs package.
+
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Amazonia</th>
+      <th>Andina</th>
+      <th>Caribe</th>
+      <th>Insular</th>
+      <th>Orinoquía</th>
+      <th>Pacífica</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Amazonia</th>
+      <td>1.000000e+00</td>
+      <td>3.397822e-11</td>
+      <td>4.305288e-10</td>
+      <td>5.998187e-07</td>
+      <td>1.267654e-02</td>
+      <td>5.998187e-07</td>
+    </tr>
+    <tr>
+      <th>Andina</th>
+      <td>3.397822e-11</td>
+      <td>1.000000e+00</td>
+      <td>9.647016e-11</td>
+      <td>2.716173e-03</td>
+      <td>5.869708e-193</td>
+      <td>1.281682e-213</td>
+    </tr>
+    <tr>
+      <th>Caribe</th>
+      <td>4.305288e-10</td>
+      <td>9.647016e-11</td>
+      <td>1.000000e+00</td>
+      <td>2.484779e-03</td>
+      <td>9.759953e-147</td>
+      <td>2.097521e-68</td>
+    </tr>
+    <tr>
+      <th>Insular</th>
+      <td>5.998187e-07</td>
+      <td>2.716173e-03</td>
+      <td>2.484779e-03</td>
+      <td>1.000000e+00</td>
+      <td>8.756284e-06</td>
+      <td>6.369389e-04</td>
+    </tr>
+    <tr>
+      <th>Orinoquía</th>
+      <td>1.267654e-02</td>
+      <td>5.869708e-193</td>
+      <td>9.759953e-147</td>
+      <td>8.756284e-06</td>
+      <td>1.000000e+00</td>
+      <td>1.369821e-74</td>
+    </tr>
+    <tr>
+      <th>Pacífica</th>
+      <td>5.998187e-07</td>
+      <td>1.281682e-213</td>
+      <td>2.097521e-68</td>
+      <td>6.369389e-04</td>
+      <td>1.369821e-74</td>
+      <td>1.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+
+The table above shows the p-value for pairwise comparisons of regions. There are significant differences (with alpha = 0.01) between:
+
+Amazonía vs Andina, Amazonía vs Caribe, Amazonía vs Insular, Amazonía vs Pacífica
+Andina vs Caribe, Andina vs Orinoquía, Andina vs Pacífica
+Caribe vs Orinoquía, Caribe vs Pacífica
+Insular vs Orinoquía
+Orinoquía vs Pacífica
+
+In conclusion, there are differences in a large number of regions. It is important to clarify that despite the fact that it is a non-parametric test, atypical data can cause a loss of power. However, exploratory analyzes seem to be supporting this statistical conclusion. Similar analyzes can be done for the other types of properties, and the reader is invited to investigate the data set further.
 
 ### Summarizing the main findings in exploratory and visualization stages
 
@@ -119,6 +201,46 @@ All of this information was used in the data preparation stage to build a custom
    - Large houses (more than 5 rooms) generally have a higher price, but there is a saturation point where more rooms do not mean a significant increase in price.
    - Very large houses (more than 7 rooms) have a higher price in relation to smaller ones, but in this group of properties it is difficult to differentiate the sale prices only based on the number of rooms.
    - The most notable drawback of the present data set is the large amount of imputed data. These cannot be used because they distort the data analysis, resulting in a great loss of data
+
+### Data Preprocessing:
+
+Based on the above findings, a data preprocessing was designed with the following functions:
+
+**For preprocessing before building the model:**
+
+- load_data: Loads the information from the regions.csv and co_properties.csv files. Additionally, the documentation for this function describes the columns of the database.
+- clean_data:  Unifies the currency of prices, remove constants columns, choose cases with operation_type = Venta, remove non informative columns, create binary variables for mark missing values, mark invalid values of variables.
+- join_data: Unifie two file in one (regions and co_properties)
+- save_data: Save cleaned data to sqlLite database.
+
+<img src="Graphs/preprocess_data_load.PNG">
+
+<img src="Graphs/clean_data.PNG">
+
+<img src="Graphs/join_save_data.PNG">
+
+**For processing during model construction:**
+
+- load_data: Load the cleaned database and add other model-specific cleanings (remove variables not used in the model, keep data only of houses and apartments)
+- adjust_data_for_model: create dummies for categorical variable, remove incomplete rows, exclude departments with less of 100 rows in the dataframe, replace price for log10(price), split the dataframe en covariates and target variable.
+- buil_model: Construct the pipeline for training model defining a convenient space of parameter and using gridsearch. The space parameter consider feasible mixtures of parameters according to the model class and the relationships between the parameters.
+- save_data_to_evaluate_model: In order to present the performance of the model on maps, this function saves the test data set and its predictions.
+- save_model: Save the best model like a pkl file.
+- input_data.py (customized_transformer): This transformer is important for the removal of outliers and the imputation of medians on missing data. For a more intelligent imputation, the median of the feature is calculated for each department, and then the appropriate value is used over each sample.
+
+<img src="Graphs/import_customized_class.PNG>
+<img src="Graphs/adjust_data.PNG>
+<img src="Graphs/build_model.PNG>
+<img src="Graphs/search_space.PNG>
+<img src="Graphs/save_eval.PNG>
+
+**For visualizations in app**:
+
+- report.py: This is the interactive missing values report
+- create_choropleth.py: This function allows creating html templates for a desired choropleth for a certain variable to be drawn and a certain group of real estate properties chosen by the user. It exemplifies the power of folium when used in conjunction with geopandas
+- create_geodf.py: This function create the data layer for the folium map.
+
+<img src="Graphs/Choropleth.gif>
 
 ### Summary:
 
