@@ -1,5 +1,125 @@
 # Price of real estate properties in Colombia
 
+### Project Overview
+
+This project is part of the field of real estate valuation. Usually the sellers of these properties require some guide for the valuation of the property based on some relevant characteristics such as its total surface, the covered surface, the number of rooms, bathrooms and bedrooms, the sector where it is located, and the kind of property.
+
+One way to approach this problem is through the construction of a regression model that allows us to understand the relationship between the variables and the price. In data science this is part of supervised learning techniques.
+
+An analysis of this type can be more complete if, in addition, there is some kind of tool for the presentation of information on maps, when data on its geographical location is available, as this can give an idea of the spatial distribution of prices. The salesperson may also wish to be able to access this information from anywhere, and not just from their workplace desktop, so presenting the information in a web application can be a significant advantage.
+
+Building such a solution goes through several engineering stages, including choosing the architecture for the solution, and integrating with data science techniques for modeling.
+
+In this project we have proposed a solution based on python and flask for the backend, and javascript, bootstrap and css on the frondend. For the aspect graphic, the plotly library has been used, which offers a great variety of graphics, all of them very aesthetic and professional. Regarding the need to draw maps, two powerful tools that come with python have been used: geopandas and Folium. Geopandas allows us to manipulate the data layer of the maps in a very efficient, fast and flexible way. Whereas folium specializes in the production of thematic maps based on data that can be integrated as html resources within a website.
+
+The choice of flask is justified by its simplicity and easy implementation. It allows to manage get and post requests in a very simplified way. It also offers simple ways of routing to html templates to offer different capabilities of interactivity with the user, all this with the dynamism that javascript allows on the client side. Finally, bootstrap and css do the job of giving the website a nice style.
+
+In the modeling stage it is important to mention that there are many approaches to the construction of regression models, from the more classical approach based on multiple linear regression, to more recent approaches based on neural networks, descending gradients or support machines. 
+
+In this project we will use three price estimation approaches: stochastic descending gradient (SVM), support vector regressor(SVR), and multiple linear regression(LR) with categorical variables. To choose the best alternative, a parameter tuning method and model selection based on the mixture (parameters, model) that maximizes the R squared metric is implemented.
+
+Some exploratory results related to the description of missing values in the dataset and the geographic behavior of the residuals of the best fitted model are implemented in the app as a demonstration of the capabilities of plotly, geopandas and folium. We are aware that better and more complete visualizations are possible, but this is an excellent starting point in creating a more robust website as you implement the fundamental layers of the solution.
+
+In relation to the data, these have been taken from a competition that is no longer in force in Kaggle, but at the time, a call was made to data scientists to offer solutions for the modeling of real estate prices in Colombia on a database of 1 Million of records. The database comes from a real environment and has all the characteristics to be considered an interesting challenge.
+
+### Problem Statement:
+
+The problem was posed in terms of the following questions of interest:
+
+1. How can you implement a web app that integrates statistical modeling on referenced data to predict real estate prices in Colombia?
+
+We believe that this first answer is given in the overwiew but it materializes as feasible with the final product of this app.
+
+2. What patterns can be seen in the data regarding the relationship of the variables with the price, and especially their distribution by departments?
+
+3. How accurate can property price prediction be using the three types of models mentioned: SVM, SVR, and LR?
+
+### Metric used to evaluate performance of model:
+
+To evaluate the proposed models, we use the metric R2 which is appropriate when the target variable is continuous. Other metrics are possible, but this one is general enough to be applicable to all three models despite their mathematical and algorithmic differences.
+
+To avoid overfitting problems, one portion of the data is reserved for testing and another for training, and a pipeline-based implementation prevents data linking between the two datasets. Finally, the tuning of parameters on the training data is carried out using a search strategy (GridSearch) that uses cross-validation. The best model chosen after these steps is used to extend the performance review by mapping the median of the squares of the residuals, in order to identify areas of the country for which the model is especially weak in forecasting.
+
+### Data Exploration
+
+Several exploratory data analyzes were carried out. Here is a list and the most important findings:
+
+**Missing values inspection:** In this stage, the amount of missing values for each type of property is counted. An automated report emerged from this work, which in turn feeds a plotly graph (HeatMap) into the web application. For this task, research on the use plotly in conjunction with javascript and ajax was necessary to guarantee interactivity with multiple selection lists manipulated by the user.
+
+The main conclusion was that missing data needed to be imputed in large quantities because many variables were missing for some types of property. This is not convenient because it impairs the possibility of finding the real relationship between the variables by contaminating the data with falsely more constant values. So we impute only in a portion of the records, those whose amount of missing values was not exaggerated.
+
+From this process it was also concluded that there was only quality data to model prices of houses and apartments, so the analysis focused on those two types of property.
+
+[per_miss_val.png]
+
+**Counting the number of records by department and property**: It was studied whether there was enough information for all the properties. This revealed low data frequencies for many of them, further reinforcing the decision to focus on houses and apartments.
+
+[count_records_by_pro.png]
+
+**Counting the number of houses and apartment by Regions**: The data set was supplemented with an extra variable: the region of the country where the property is located. It is known that there are demographic and socioeconomic differences between regions that can impact price, so it was included as part of the analyzes. The idea here was to get the amount of houses and apartments by regions. Orinoquía, Amazonia and Insular are very data-poor regions that were removed.
+
+[house_apart_vs_region.png]
+
+**Log of price vs other variables**: The relationship of the logarithm of the price with other variables such as: the region, the type of property, the department, was studied in some detail. In some cases, crossing variables taking control of another. The main conclusions were that prices differ between regions, as expected, and by department the behavior can be very dissimilar and with the presence of many atypical data. Boxplots, and violin plot were used for these analyzes.
+
+[log_price_by_regions.png]
+
+[logs_price_by_pro.png]
+
+[log_house_by_regions.png]
+
+[log_house_by_depart.png]
+
+### Data Visualization
+
+There a natural way to group properties according to their characteristics?. This question was attempted to be answered at the visualization stage.
+
+**Pairplot for features**:  For which a pairplot was drawn to review the relationships between pairs of variables. 
+
+[pair_plot.png]
+
+Some conclusions are:
+
+- The variables rooms and bedrooms are highly correlated in the highest zone of their values, which makes sense, the more rooms a house has, the less important is the difference between these two variables. This is also confirmed by observing that the histograms for both variables are very similar.
+- The variable region seems to affect the shape of the log price histogram.
+- Due to the high correlation between the bedrooms and rooms variables in the high value zone, it would be interesting to separate small houses from large houses before evaluating their impact on the price.
+- Due to the volume of data imputed on the variables rooms and bedrooms, the graphs present anomalies, special care must be taken with this aspect when building a predictive model.
+
+**Finding outliers in critical variables**: It is known that outliers greatly impair the predictive ability of a model. That's why we inspect this for critical variables like number of rooms, total surface and covered surface:
+
+[outlier_cove_surf.png]
+
+[outlier_rooms.png]
+
+[outlier_tot_surf.png]
+
+All of this information was used in the data preparation stage to build a custom transformer that would remove outliers and conveniently impute data using robust central measures such as the median.
+
+**Inspecting the effect of remove imputed data**: What happens to the pairplot when the mass of input data is not present?. This is what was found:
+
+[cleaned_pair_plot.png]
+
+- The scatter plot between log_price and rooms shows that the regression slope could be steeper for properties with less than 5 rooms than for properties with more than 5 rooms.
+- Log_surface_total is positively correlated with log_price, and the same happens with log_surface_covered where the relationship is very clear.
+- Regarding the effects of removals, it is clear that eliminating outliers and imputed data generates the loss of a large amount of data, but the relationships are better appreciated.
+
+**Experimenting with PCA for clustering of cases**: It may be appropriate to apply PCA before proceeding to a regression analysis. This allows to visualize natural groupings of the data using clustering.
+
+[varianza_pca]
+
+[pairplot_pca.png]
+
+### Summarizing the main findings in exploratory and visualization stages
+
+- It is useful to take control of the geographical location. With this, greater homogeneity in price is achieved. The violin and boxplot charts created by regions support this conclusion. However, there is still wide intragroup variability that must be explained using additional variables.
+- Taking control of the type of property is also important, because as the comparative Choropleths between House and Apartments show, the spatial distribution can be different.
+- Considering types of houses according to the values of the explanatory variables is useful to better explain the distribution of the logarithm of prices (changes are noticed when controlling according to cluster). The clusters indicate the following typologies:
+   - Small houses (with less than 2 bedrooms) are associated with low values of total area and covered, and define a low sale price.
+   - Medium houses (between 3 and 5 bedrooms) are associated with slightly higher values of total and covered area, and their relationship with the sale price, although variable, tends to indicate higher average prices.
+   - Large houses (more than 5 rooms) generally have a higher price, but there is a saturation point where more rooms do not mean a significant increase in price.
+   - Very large houses (more than 7 rooms) have a higher price in relation to smaller ones, but in this group of properties it is difficult to differentiate the sale prices only based on the number of rooms.
+   - The most notable drawback of the present data set is the large amount of imputed data. These cannot be used because they distort the data analysis, resulting in a great loss of data
+
 ### Summary:
 
 In this project we carry out the analysis of the data available in Kaggle "Colombia Housing Properties Price".
