@@ -58,7 +58,6 @@ class InputData(BaseEstimator, TransformerMixin):
         for col_name in self.include:
             col = df[~df[col_name].isna()][col_name]
             self.quantile98_by_feature[col_name] = np.quantile(col,0.98)
-        print(self.quantile98_by_feature)
     
     def __create_col_without_extremes(self,col,col_name):
         quantile = self.quantile98_by_feature[col_name]

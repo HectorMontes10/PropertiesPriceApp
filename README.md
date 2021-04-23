@@ -86,8 +86,8 @@ Notes:
 1. Deleting regressor.pkl model is possible but once this is done you will have to run train_regressor.py again to obtain a new trained model to be used by your application. Model training may take time, depending on the capabilities of your server. training_regressor.py implements gridsearch for tuning parameters, you can edit the parameter search space if you wish for more intensive or less intensive training. You can also change the list of estimators used. In this case we have focused on three: a classical multiple linear regression model, a stochastic descending gradient model, and a vector support regressor. The documentation can be consulted on the sklearn site:
 
 - [Stochastic Gradient Descending](https://scikit-learn.org/stable/modules/sgd.html)
-- [Support Vector Regressor] (https://scikit-learn.org/stable/modules/svm.html#svm-regression)
-- [Linear Model] (https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html)
+- [Support Vector Regressor](https://scikit-learn.org/stable/modules/svm.html#svm-regression)
+- [Linear Model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html)
 
 2. PropertiesPrices.db is a database that can be deleted, but once this is done it will be necessary to run process_data.py again to create a new clean database of prices. You can edit the script to customize the cleanup tasks on the co_properties.csv and regions.csv files.
 
